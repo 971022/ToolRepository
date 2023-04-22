@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.ICustomerDao">
+    <resultMap id="CustomerResultMap" type="com.Pojo.CustomerPojo">
+        <id property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="customerPwd" column="customer_pwd"/>
+        <result property="customerSex" column="customer_sex"/>
+        <result property="customerCardId" column="customer_cardId"/>
+        <result property="customerAge" column="customer_age"/>
+        <result property="customerTel" column="customer_tel"/>
+        <result property="customerImg" column="img"/>
+        <result property="customerAccount" column="customer_account"/>
+        <result property="customerCredit" column="customer_credit"/>
+        <result property="customerCrestate" column="customer_crestate"/>
+        <result property="customerCrestateTime" column="customer_cresta_time"/>
+        <result property="customerCreatTime" column="customer_create_time"/>
+        <result property="customerBorlistate" column="customer_borlistate"/>
+    </resultMap>
+    <insert id="addCustomer">
+        <selectKey keyProperty="customerId" keyColumn="customer_id" resultType="java.lang.String" order="BEFORE">
+            select replace(uuid(),'-','')
+        </selectKey>
+        insert into customer_info values(#{customerId},#{customerName},#{customerPwd},#{customerSex},#{customerCardId},#{customerAge},#{customerTel},null,0,500,false,0,CURRENT_TIMESTAMP,false)
+    </insert>
+    <select id="findCustomer" resultMap="CustomerResultMap">
+        select * from customer_info
+        <where>
+            <if test="customerId!=null">customer_id=#{customerId}</if>
+            <if test="customerName!=null">and customer_name=#{customerName}</if>
+            <if test="customerPwd!=null">and customer_pwd=#{customerPwd}</if>
+        </where>
+    </select>
+    <update id="uploadCustomerPicture">
+        update customer_info set img=#{customerImg} where customer_id=#{customerId}
+    </update>
+    <select id="findById" resultMap="CustomerResultMap">
+        select * from customer_info where customer_id=#{customerId}
+    </select>
+</mapper>

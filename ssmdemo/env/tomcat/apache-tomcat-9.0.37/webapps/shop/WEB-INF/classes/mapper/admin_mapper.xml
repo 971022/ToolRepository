@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ambow.shop.dao.IAdminDao">
+    <resultMap id="adminResult" type="com.ambow.shop.entity.AdminInfo">
+        <id property="adminId" column="admin_id" jdbcType="INTEGER" javaType="Integer"></id>
+        <result property="adminRealName" column="admin_real_name" javaType="String" jdbcType="CHAR"></result>
+        <result property="adminLoginName" column="admin_login_name" javaType="String" jdbcType="CHAR"></result>
+        <result property="adminLoginPwd" column="admin_login_pwd" javaType="String" jdbcType="CHAR"></result>
+    </resultMap>
+   <!--id的名称必须和Dao层接口的方法名称一致，否则无法实现该Dao的接口-->
+    <!-- 字段赋值的参数必须和实体中的属性名称一致，否则无法传递参数-->
+    <select id="adminLogin" resultType="int">
+      select  count(*) from admin_info where admin_login_name=#{adminLoginName} and  admin_login_pwd=#{adminLoginPwd}
+    </select>
+</mapper>

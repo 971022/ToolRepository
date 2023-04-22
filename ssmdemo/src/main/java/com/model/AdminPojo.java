@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminPojo {
+//    测试推送
     private String id;
     private String name;
     private String sex;

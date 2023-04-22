@@ -1,0 +1,15 @@
+server:
+  port: 9090
+spring:
+  datasource:
+    type: com.mchange.v2.c3p0.ComboPooledDataSource
+    driverClass: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8
+    user: root
+    password:
+    maxPoolSize: 200
+    minPoolSize: 10
+    initialPoolSize: 10
+    acquireIncrement: 5
+    idleConnectionTestPeriod: 28000
+    maxIdleTime: 28000

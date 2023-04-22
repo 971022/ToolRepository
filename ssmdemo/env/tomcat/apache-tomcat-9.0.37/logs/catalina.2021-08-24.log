@@ -1,0 +1,66 @@
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log Server.服务器版本: Apache Tomcat/9.0.37
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 服务器构建:        Jun 30 2020 20:09:49 UTC
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 服务器版本号(:     9.0.37.0
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 操作系统名称:      Windows 10
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log OS.版本:           10.0
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 架构:              amd64
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log Java 环境变量:     D:\JDK1.8\jdk\jre
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log Java虚拟机版本:    1.8.0_231-b11
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log JVM.供应商:        Oracle Corporation
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:     G:\tomcat9.0.37\apache-tomcat-9.0.37
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:     G:\tomcat9.0.37\apache-tomcat-9.0.37
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Djava.util.logging.config.file=G:\tomcat9.0.37\apache-tomcat-9.0.37\conf\logging.properties
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Djdk.tls.ephemeralDHKeySize=2048
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Djava.protocol.handler.pkgs=org.apache.catalina.webresources
+24-Aug-2021 22:04:21.063 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Dignore.endorsed.dirs=
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Dcatalina.base=G:\tomcat9.0.37\apache-tomcat-9.0.37
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Dcatalina.home=G:\tomcat9.0.37\apache-tomcat-9.0.37
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.startup.VersionLoggerListener.log 命令行参数：-Djava.io.tmpdir=G:\tomcat9.0.37\apache-tomcat-9.0.37\temp
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent 使用APR版本[1.7.0]加载了基于APR的Apache Tomcat本机库[1.2.24]。
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR功能：IPv6[true]、sendfile[true]、accept filters[false]、random[true]。
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR/OpenSSL配置：useAprConnector[false]，useOpenSSL[true]
+24-Aug-2021 22:04:21.078 信息 [main] org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL成功初始化 [OpenSSL 1.1.1g  21 Apr 2020]
+24-Aug-2021 22:04:21.298 信息 [main] org.apache.coyote.AbstractProtocol.init 初始化协议处理器 ["http-nio-8080"]
+24-Aug-2021 22:04:21.439 信息 [main] org.apache.catalina.startup.Catalina.load 服务器在[502]毫秒内初始化
+24-Aug-2021 22:04:21.455 信息 [main] org.apache.catalina.core.StandardService.startInternal 正在启动服务[Catalina]
+24-Aug-2021 22:04:21.455 信息 [main] org.apache.catalina.core.StandardEngine.startInternal 正在启动 Servlet 引擎：[Apache Tomcat/9.0.37]
+24-Aug-2021 22:04:21.455 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\docs]
+24-Aug-2021 22:04:21.612 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\docs]的部署已在[142]毫秒内完成
+24-Aug-2021 22:04:21.612 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\examples]
+24-Aug-2021 22:04:21.784 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\examples]的部署已在[172]毫秒内完成
+24-Aug-2021 22:04:21.800 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\host-manager]
+24-Aug-2021 22:04:21.815 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\host-manager]的部署已在[15]毫秒内完成
+24-Aug-2021 22:04:21.815 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\manager]
+24-Aug-2021 22:04:21.831 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\manager]的部署已在[16]毫秒内完成
+24-Aug-2021 22:04:21.831 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\ROOT]
+24-Aug-2021 22:04:21.862 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\ROOT]的部署已在[31]毫秒内完成
+24-Aug-2021 22:04:21.862 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\shop]
+24-Aug-2021 22:04:22.693 信息 [main] org.apache.jasper.servlet.TldScanner.scanJars 至少有一个JAR被扫描用于TLD但尚未包含TLD。 为此记录器启用调试日志记录，以获取已扫描但未在其中找到TLD的完整JAR列表。 在扫描期间跳过不需要的JAR可以缩短启动时间和JSP编译时间。
+24-Aug-2021 22:04:22.771 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization started
+24-Aug-2021 22:04:22.818 信息 [main] org.springframework.web.context.support.XmlWebApplicationContext.prepareRefresh Refreshing Root WebApplicationContext: startup date [Tue Aug 24 22:04:22 CST 2021]; root of context hierarchy
+24-Aug-2021 22:04:22.865 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [spring_context.xml]
+24-Aug-2021 22:04:23.053 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [mybaties.xml]
+24-Aug-2021 22:04:23.617 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization completed in 846 ms
+24-Aug-2021 22:04:23.617 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\shop]的部署已在[1,755]毫秒内完成
+24-Aug-2021 22:04:23.633 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\shop_war]
+24-Aug-2021 22:04:24.384 信息 [main] org.apache.jasper.servlet.TldScanner.scanJars 至少有一个JAR被扫描用于TLD但尚未包含TLD。 为此记录器启用调试日志记录，以获取已扫描但未在其中找到TLD的完整JAR列表。 在扫描期间跳过不需要的JAR可以缩短启动时间和JSP编译时间。
+24-Aug-2021 22:04:24.446 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization started
+24-Aug-2021 22:04:24.478 信息 [main] org.springframework.web.context.support.XmlWebApplicationContext.prepareRefresh Refreshing Root WebApplicationContext: startup date [Tue Aug 24 22:04:24 CST 2021]; root of context hierarchy
+24-Aug-2021 22:04:24.524 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [spring_context.xml]
+24-Aug-2021 22:04:24.618 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [mybaties.xml]
+24-Aug-2021 22:04:25.089 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization completed in 643 ms
+24-Aug-2021 22:04:25.089 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\shop_war]的部署已在[1,456]毫秒内完成
+24-Aug-2021 22:04:25.105 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\springbootTest_war]
+24-Aug-2021 22:04:26.089 信息 [main] org.apache.jasper.servlet.TldScanner.scanJars 至少有一个JAR被扫描用于TLD但尚未包含TLD。 为此记录器启用调试日志记录，以获取已扫描但未在其中找到TLD的完整JAR列表。 在扫描期间跳过不需要的JAR可以缩短启动时间和JSP编译时间。
+24-Aug-2021 22:04:26.152 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\springbootTest_war]的部署已在[1,047]毫秒内完成
+24-Aug-2021 22:04:26.152 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory 把web 应用程序部署到目录 [G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\test_war]
+24-Aug-2021 22:04:26.747 信息 [main] org.apache.jasper.servlet.TldScanner.scanJars 至少有一个JAR被扫描用于TLD但尚未包含TLD。 为此记录器启用调试日志记录，以获取已扫描但未在其中找到TLD的完整JAR列表。 在扫描期间跳过不需要的JAR可以缩短启动时间和JSP编译时间。
+24-Aug-2021 22:04:26.841 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization started
+24-Aug-2021 22:04:26.872 信息 [main] org.springframework.web.context.support.XmlWebApplicationContext.prepareRefresh Refreshing Root WebApplicationContext: startup date [Tue Aug 24 22:04:26 CST 2021]; root of context hierarchy
+24-Aug-2021 22:04:26.904 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [spring.xml]
+24-Aug-2021 22:04:26.982 信息 [main] org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions Loading XML bean definitions from class path resource [mybaties.xml]
+24-Aug-2021 22:04:27.451 信息 [main] org.springframework.web.context.ContextLoader.initWebApplicationContext Root WebApplicationContext: initialization completed in 610 ms
+24-Aug-2021 22:04:27.451 信息 [main] org.apache.catalina.startup.HostConfig.deployDirectory Web应用程序目录[G:\tomcat9.0.37\apache-tomcat-9.0.37\webapps\test_war]的部署已在[1,299]毫秒内完成
+24-Aug-2021 22:04:27.451 信息 [main] org.apache.coyote.AbstractProtocol.start 开始协议处理句柄["http-nio-8080"]
+24-Aug-2021 22:04:27.451 信息 [main] org.apache.catalina.startup.Catalina.start [6020]毫秒后服务器启动

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ambow.test.dao.IAdminDao">
+    <resultMap id="adminResult" type="com.ambow.test.entity.AdminInfo">
+        <id property="adminId" column="admin_id" jdbcType="INTEGER" javaType="Integer"/>
+        <result property="adminLoginName" column="admin_login_name" javaType="String" jdbcType="CHAR"/>
+        <result property="adminLoginPwd" column="admin_login_pwd" javaType="String" jdbcType="CHAR"/>
+        <result property="adminLevel" column="admin_level" javaType="boolean" jdbcType="BOOLEAN"/>
+    </resultMap>
+    <select id="adminLogin" resultType="int">
+        select count(*) from admin_info where admin_login_name=#{adminLoginName} and admin_login_pwd=#{adminLoginPwd}
+
+    </select>
+    <select id="findAllAdmin" resultMap="adminResult" resultType="java.util.List">
+          select  * from admin_info
+    </select>
+    <insert id="addAdmin">
+         insert into admin_info(admin_login_name,admin_login_pwd)  values(#{adminLoginName},#{adminLoginPwd})
+    </insert>
+    <delete id="delAdmin">
+        delete  from admin_info wher admin_id=#{adminId}
+    </delete>
+    <update id="updateAdmin">
+        update admin_info
+        <trim prefix="set" suffixOverrides=",">
+            <if test="adminLoginName!=null">admin_login_name=#{adminLoginName}</if>
+            <if test="adminLoginName!=null">admin_login_pwd=#{adminLoginPwd}</if>
+            <if test="adminLoginName!=null">admin_level=#{adminLevel}</if>
+        </trim>
+        where admin_id=#{adminId}
+    </update>
+</mapper>
