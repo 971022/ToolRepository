@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>双CSV对比 · 全功能版（独立城皮分析）</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f5f7fb; font-family: 'Inter', system-ui, sans-serif; padding: 2rem 1.5rem; color: #1e293b; }
+        .container { max-width: 1400px; margin: 0 auto; background: #fff; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.08); overflow: hidden; }
+        .hero { padding: 2rem 2rem 1.25rem; border-bottom: 1px solid #edf2f7; }
+        .hero h1 { font-size: 1.9rem; font-weight: 600; background: linear-gradient(135deg, #1e2b3c, #2c4f6e); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .hero p { color: #5b6e8c; }
+        .main-content { padding: 2rem; }
+        .compare-section { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 1.5rem; }
+        .file-card { flex: 1; min-width: 280px; background: #fafcff; border-radius: 24px; border: 1px solid #e9edf2; padding: 1.5rem; }
+        .file-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: #1f3a4b; }
+        .badge { background: #eef2ff; padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.75rem; font-weight: 500; }
+        .upload-area { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 1rem; }
+        .upload-btn { background: #fff; border: 1px solid #cbd5e1; border-radius: 60px; padding: 0.5rem 1.2rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .upload-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .clear-single { background: #fff; border: 1px solid #f0c4c4; border-radius: 60px; padding: 0.5rem 1.2rem; font-size: 0.8rem; font-weight: 500; color: #b91c1c; cursor: pointer; }
+        .clear-single:hover { background: #fee2e2; }
+        input[type="file"] { display: none; }
+        .file-status { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 20px; padding: 0.8rem 1rem; font-size: 0.85rem; display: flex; justify-content: space-between; margin-top: 12px; }
+        .file-status.success { background: #ecfdf5; border-color: #b2dfd0; color: #2c6b4a; }
+        .file-status.error { background: #fef2f0; border-color: #f3cfc7; color: #c2412c; }
+        .date-info { font-size: 0.7rem; background: #eef2ff; padding: 2px 8px; border-radius: 20px; }
+        .action-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin: 1rem 0 1.5rem; gap: 12px; }
+        .interval-group { background: #f8fafc; padding: 0.4rem 1rem; border-radius: 60px; }
+        .view-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-view { background: #fff; border: 1px solid #cbd5e1; border-radius: 40px; padding: 0.4rem 1rem; cursor: pointer; }
+        .btn-view.active { background: #2c5f8a; color: white; border-color: #2c5f8a; }
+        .btn-outline { background: transparent; border: 1px solid #cbd5e1; border-radius: 32px; padding: 0.5rem 1.2rem; cursor: pointer; transition: 0.2s; }
+        .btn-outline:hover { background: #f1f5f9; }
+        .threshold-group { display: inline-flex; align-items: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 32px; padding: 0.2rem 0.5rem; gap: 0; }
+        .threshold-group input { width: 70px; border: none; outline: none; text-align: center; font-size: 0.85rem; padding: 0.2rem 0; background: transparent; }
+        .threshold-group button { background: transparent; border: none; padding: 0.2rem 0.8rem; cursor: pointer; font-size: 0.85rem; border-left: 1px solid #cbd5e1; margin-left: 4px; }
+        .threshold-group button:hover { background: #f1f5f9; border-radius: 0 30px 30px 0; }
+        .result-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .diff-hint { font-size: 0.75rem; color: #6b7c93; background: #f8fafc; padding: 0.2rem 0.8rem; border-radius: 20px; }
+        .result-wrapper { border-radius: 20px; border: 1px solid #ecf3f9; overflow-x: auto; max-height: 520px; overflow-y: auto; margin-top: 0.5rem; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 850px; }
+        .data-table th { background: #f8fafd; padding: 0.9rem 1rem; border-bottom: 2px solid #e2edf2; text-align: left; position: sticky; top: 0; }
+        .data-table th.sortable { cursor: pointer; user-select: none; }
+        .data-table th.sortable:hover { background: #eef3fc; }
+        .data-table th.sort-asc::after { content: " ▲"; font-size: 0.7rem; }
+        .data-table th.sort-desc::after { content: " ▼"; font-size: 0.7rem; }
+        .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f3f8; }
+        .empty-message { text-align: center; padding: 3rem 1.5rem; color: #7e8ca2; }
+        .export-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 1rem; }
+        .float-control { display: flex; gap: 12px; align-items: center; }
+        .footer-note { margin-top: 1.8rem; text-align: center; font-size: 0.75rem; color: #8595ae; border-top: 1px solid #edf2f7; padding-top: 1.5rem; }
+        @media (max-width: 780px) { body { padding: 1rem; } .compare-section { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>📊 双期数据对比 · 全功能版（独立城皮分析）</h1>
+        <p>上传两个 CSV，支持差值对比、退出/加入同盟、分组战功统计、未参与城皮筛选（助攻变化量阈值）</p>
+    </div>
+    <div class="main-content">
+        <div class="compare-section">
+            <div class="file-card">
+                <h3>📁 文件 A <span class="badge">智能识别前后</span></h3>
+                <div class="upload-area">
+                    <label class="upload-btn" for="fileA">📂 选择 CSV</label>
+                    <button class="clear-single" id="clearA">清空</button>
+                </div>
+                <input type="file" id="fileA" accept=".csv, .CSV">
+                <div id="fileAStatus" class="file-status"><span>未选择文件</span><span class="date-info">—</span></div>
+            </div>
+            <div class="file-card">
+                <h3>📁 文件 B <span class="badge">智能识别前后</span></h3>
+                <div class="upload-area">
+                    <label class="upload-btn" for="fileB">📂 选择 CSV</label>
+                    <button class="clear-single" id="clearB">清空</button>
+                </div>
+                <input type="file" id="fileB" accept=".csv, .CSV">
+                <div id="fileBStatus" class="file-status"><span>未选择文件</span><span class="date-info">—</span></div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="interval-group"><span>📅 时间间隔：</span><strong id="intervalValue">未计算</strong></div>
+            <div class="view-buttons">
+                <button class="btn-view active" id="viewDiffBtn">📊 差值对比</button>
+                <button class="btn-view" id="viewExitBtn">🚪 退出同盟</button>
+                <button class="btn-view" id="viewJoinBtn">🤝 加入同盟</button>
+                <button class="btn-view" id="viewGroupStatsBtn">📈 分组战功统计</button>
+                <button class="btn-view" id="viewCitySkinBtn">🚫 未参与城皮</button>
+                <button class="btn-outline" id="swapBtn">🔄 交换文件</button>
+                <button class="btn-outline" id="clearAllBtn">🗑 全部清空</button>
+            </div>
+        </div>
+
+        <div id="dynamicContent"></div>
+
+        <div class="footer-note">* 未参与城皮基于助攻变化量（后期−前期），阈值可自定义，饼图按分组人数统计，按钮可切换视图。</div>
+    </div>
+</div>
+
+<script>
+    // DOM 元素
+    const fileAInput = document.getElementById('fileA');
+    const fileBInput = document.getElementById('fileB');
+    const fileAStatus = document.getElementById('fileAStatus');
+    const fileBStatus = document.getElementById('fileBStatus');
+    const dateABadge = fileAStatus.querySelector('.date-info');
+    const dateBBadge = fileBStatus.querySelector('.date-info');
+    const intervalSpan = document.getElementById('intervalValue');
+    const dynamicDiv = document.getElementById('dynamicContent');
+    const clearABtn = document.getElementById('clearA');
+    const clearBBtn = document.getElementById('clearB');
+    const swapBtn = document.getElementById('swapBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const viewDiff = document.getElementById('viewDiffBtn');
+    const viewExit = document.getElementById('viewExitBtn');
+    const viewJoin = document.getElementById('viewJoinBtn');
+    const viewGroupStats = document.getElementById('viewGroupStatsBtn');
+    const viewCitySkin = document.getElementById('viewCitySkinBtn');
+
+    // 数据存储
+    let fileARaw = null, fileBRaw = null;
+    let fileAMap = new Map();
+    let fileBMap = new Map();
+    let fileAMembers = new Set();
+    let fileBMembers = new Set();
+    let fileADate = null, fileBDate = null;
+    let currentDiffList = [];
+    let currentGroupStats = [];
+    let sortState = { column: null, order: null };
+    let groupSortState = { column: null, order: null };
+    let currentView = 'diff';
+    let groupChartInstance = null;
+    let citySkinChartInstance = null;
+    let showGroupPie = false;
+    let citySkinThreshold = 50;
+    let isCitySkinPie = false;       // 未参与城皮是否显示饼图
+
+    // 列名关键词
+    const targetColumns = {
+        member: ['成员', '角色名', '姓名', '名称', 'member', '角色名称', '玩家名称', '昵称'],
+        contribution: ['贡献总量', '贡献', '贡献值', '总贡献'],
+        battle: ['战功总量', '战功', '战功值', '总战功'],
+        assist: ['助攻总量', '助攻', '助攻值', '总助攻'],
+        donate: ['捐献总量', '捐献', '捐献值', '总捐献'],
+        power: ['势力值变化量', '势力', '势力点', '总势力'],
+        continent: ['所属州', '所属洲', '州', '洲', '大州', '大洲', 'continent', '地区', '区域', 'zone', '领土', '所属地区'],
+        group: ['分组', '组别', 'group', '团队', '小队', '队伍', '分组名称']
+    };
+
+    // ================= 工具函数 =================
+    function extractDateFromFilename(filename) {
+        if (!filename) return null;
+        let base = filename.replace(/\.csv$/i, '').replace(/.*[\\/]/, '');
+        let m = base.match(/(\d{4})年(\d{2})月(\d{2})日(\d{2})时(\d{2})分(\d{2})秒/);
+        if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]), parseInt(m[4]), parseInt(m[5]), parseInt(m[6]));
+        m = base.match(/\b(\d{8})\b/);
+        if (m) return new Date(parseInt(m[1].substring(0,4)), parseInt(m[1].substring(4,6))-1, parseInt(m[1].substring(6,8)));
+        m = base.match(/(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+        return null;
+    }
+    function formatDate(d) { return d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}` : '无日期'; }
+    function formatInterval(s,e) { if(!s||!e) return '无法计算'; let ms=Math.abs(e-s), sec=Math.floor(ms/1000), d=Math.floor(sec/86400), h=Math.floor((sec%86400)/3600), min=Math.floor((sec%3600)/60), sec2=sec%60, p=[]; if(d) p.push(d+'天'); if(h) p.push(h+'小时'); if(min) p.push(min+'分钟'); if(sec2||!p.length) p.push(sec2+'秒'); return p.join(' '); }
+    function updateInterval() { if(fileADate && fileBDate) intervalSpan.innerText = `${formatInterval(fileADate, fileBDate)} (${formatDate(fileADate)} → ${formatDate(fileBDate)})`; else intervalSpan.innerText = '未识别日期'; }
+    function updateBadge(side, date) { const badge = side==='A'?dateABadge:dateBBadge; badge.innerText = date ? formatDate(date) : '无日期'; }
+    function parseNumber(v) { if(v===undefined||v===null) return 0; let str=String(v).trim().replace(/,/g,''); let n=parseFloat(str); return isNaN(n)?0:n; }
+    function normalizeMember(n) { return String(n||'').trim().replace(/[\u3000\u00A0]/g,' ').replace(/\s+/g,' '); }
+
+    function smartFindColumn(headers, keywords) {
+        for (let kw of keywords) {
+            let found = headers.find(h => h.trim().toLowerCase() === kw.toLowerCase());
+            if (found) return found;
+        }
+        for (let kw of keywords) {
+            let found = headers.find(h => h.trim().toLowerCase().includes(kw.toLowerCase()));
+            if (found) return found;
+        }
+        return null;
+    }
+
+    async function parseFile(file, side) {
+        return new Promise((resolve, reject) => {
+            Papa.parse(file, {
+                header: true, skipEmptyLines: true,
+                complete: (res) => {
+                    const data = res.data;
+                    if (!data || !data.length) reject(new Error('无数据'));
+                    let headers = res.meta.fields;
+                    if (!headers || !headers.length) reject(new Error('无表头'));
+                    const memberCol = smartFindColumn(headers, targetColumns.member);
+                    const contribCol = smartFindColumn(headers, targetColumns.contribution);
+                    const battleCol = smartFindColumn(headers, targetColumns.battle);
+                    const assistCol = smartFindColumn(headers, targetColumns.assist);
+                    const donateCol = smartFindColumn(headers, targetColumns.donate);
+                    const powerCol = smartFindColumn(headers, targetColumns.power);
+                    const continentCol = smartFindColumn(headers, targetColumns.continent);
+                    const groupCol = smartFindColumn(headers, targetColumns.group);
+                    if (!memberCol) reject('未找到成员列');
+                    const missing = [];
+                    if (!contribCol) missing.push('贡献'); if(!battleCol) missing.push('战功');
+                    if(!assistCol) missing.push('助攻'); if(!donateCol) missing.push('捐献');
+                    if(!powerCol) missing.push('势力值变化量');
+                    if(missing.length) reject(`缺数值列: ${missing.join(', ')}`);
+                    
+                    const memberMap = new Map(), memberSet = new Set();
+                    for (const row of data) {
+                        let mem = row[memberCol];
+                        if (mem===undefined||mem===null) continue;
+                        mem = normalizeMember(String(mem));
+                        if (!mem) continue;
+                        memberSet.add(mem);
+                        memberMap.set(mem, {
+                            贡献总量: parseNumber(row[contribCol]),
+                            战功总量: parseNumber(row[battleCol]),
+                            助攻总量: parseNumber(row[assistCol]),
+                            捐献总量: parseNumber(row[donateCol]),
+                            势力值变化量: parseNumber(row[powerCol]),
+                            所属州: continentCol ? (row[continentCol]||'-') : '-',
+                            分组: groupCol ? (row[groupCol]||'-') : '-'
+                        });
+                    }
+                    if (!memberMap.size) reject('无有效成员');
+                    resolve({ memberMap, memberSet });
+                },
+                error: err => reject(err)
+            });
+        });
+    }
+
+    async function loadFileA(file) {
+        if (!file) {
+            fileARaw=null; fileAMap.clear(); fileAMembers.clear(); fileADate=null;
+            updateBadge('A',null); fileAStatus.innerHTML='<span>未选择</span><span class="date-info">—</span>'; fileAStatus.className='file-status';
+            await refreshAll(); return;
+        }
+        fileARaw=file; fileADate=extractDateFromFilename(file.name); updateBadge('A',fileADate);
+        fileAStatus.innerHTML=`<span>⏳ 解析中...</span><span class="date-info">${fileADate?formatDate(fileADate):'解析日期'}</span>`;
+        fileAStatus.className='file-status';
+        try{
+            const {memberMap, memberSet} = await parseFile(file,'A');
+            fileAMap=memberMap; fileAMembers=memberSet;
+            let display = file.name.replace(/\.csv$/i,'').replace(/同盟统计/g,'').trim()||'数据文件';
+            fileAStatus.innerHTML=`<span>✅ ${fileAMap.size}人 · ${display.slice(0,24)}</span><span class="date-info">${fileADate?formatDate(fileADate):'无日期'}</span>`;
+            fileAStatus.className='file-status success';
+            await refreshAll();
+        }catch(e){
+            fileARaw=null; fileAMap.clear(); fileAMembers.clear(); fileADate=null;
+            fileAStatus.innerHTML=`<span>❌ ${e.message||'解析失败'}</span><span class="date-info">—</span>`;
+            fileAStatus.className='file-status error';
+            await refreshAll();
+        }
+    }
+    async function loadFileB(file) {
+        if (!file) {
+            fileBRaw=null; fileBMap.clear(); fileBMembers.clear(); fileBDate=null;
+            updateBadge('B',null); fileBStatus.innerHTML='<span>未选择</span><span class="date-info">—</span>'; fileBStatus.className='file-status';
+            await refreshAll(); return;
+        }
+        fileBRaw=file; fileBDate=extractDateFromFilename(file.name); updateBadge('B',fileBDate);
+        fileBStatus.innerHTML=`<span>⏳ 解析中...</span><span class="date-info">${fileBDate?formatDate(fileBDate):'解析日期'}</span>`;
+        fileBStatus.className='file-status';
+        try{
+            const {memberMap, memberSet} = await parseFile(file,'B');
+            fileBMap=memberMap; fileBMembers=memberSet;
+            let display = file.name.replace(/\.csv$/i,'').replace(/同盟统计/g,'').trim()||'数据文件';
+            fileBStatus.innerHTML=`<span>✅ ${fileBMap.size}人 · ${display.slice(0,24)}</span><span class="date-info">${fileBDate?formatDate(fileBDate):'无日期'}</span>`;
+            fileBStatus.className='file-status success';
+            await refreshAll();
+        }catch(e){
+            fileBRaw=null; fileBMap.clear(); fileBMembers.clear(); fileBDate=null;
+            fileBStatus.innerHTML=`<span>❌ ${e.message||'解析失败'}</span><span class="date-info">—</span>`;
+            fileBStatus.className='file-status error';
+            await refreshAll();
+        }
+    }
+
+    function computeDiff() {
+        if(!fileAMap.size||!fileBMap.size){ currentDiffList=[]; return; }
+        const diffs=[];
+        for(let [m, valA] of fileAMap.entries()){
+            if(fileBMap.has(m)){
+                let valB = fileBMap.get(m);
+                let continent = '-', group = '-';
+                if(valA.所属州 !== '-' && valB.所属州 !== '-' && valA.所属州 === valB.所属州) continent = valA.所属州;
+                if(valA.分组 !== '-' && valB.分组 !== '-' && valA.分组 === valB.分组) group = valA.分组;
+                diffs.push({
+                    member: m, 所属州: continent, 分组: group,
+                    贡献总量: valB.贡献总量 - valA.贡献总量,
+                    战功总量: valB.战功总量 - valA.战功总量,
+                    助攻总量: valB.助攻总量 - valA.助攻总量,
+                    捐献总量: valB.捐献总量 - valA.捐献总量,
+                    势力值变化量: valB.势力值变化量 - valA.势力值变化量
+                });
+            }
+        }
+        currentDiffList = diffs;
+    }
+
+    function computeGroupStats() {
+        let laterMap = null;
+        if(fileADate && fileBDate) laterMap = fileADate < fileBDate ? fileBMap : fileAMap;
+        else laterMap = fileBMap.size ? fileBMap : fileAMap;
+        if(!laterMap || !laterMap.size){ currentGroupStats=[]; return; }
+        const groupMap = new Map();
+        for(let [m, val] of laterMap.entries()){
+            let g = val.分组 === '-' ? '未分组' : val.分组;
+            let battle = val.战功总量;
+            if(groupMap.has(g)){ let s=groupMap.get(g); s.total+=battle; s.cnt++; }
+            else groupMap.set(g, {total: battle, cnt:1});
+        }
+        let stats=[];
+        for(let [name, stat] of groupMap.entries()) stats.push({
+            组名: name,
+            人数: stat.cnt,
+            总战功: stat.total,
+            平均战功: Math.round(stat.total / stat.cnt)
+        });
+        currentGroupStats = stats;
+    }
+
+    function getOrderedSets() {
+        if(!fileADate||!fileBDate) return {prev:null, next:null};
+        let before = fileADate < fileBDate;
+        return {prev: before?fileAMembers:fileBMembers, next: before?fileBMembers:fileAMembers};
+    }
+
+    // ================= 导出功能 =================
+    function getTimestamp() { const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}${String(d.getSeconds()).padStart(2,'0')}`; }
+
+    function exportDiffExcel() {
+        const tbl = document.querySelector('#diffTableContainer .data-table');
+        if(!tbl){ alert('无可导出表格'); return; }
+        const ws = XLSX.utils.table_to_sheet(tbl, {raw:true});
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '差值对比');
+        XLSX.writeFile(wb, `变化值统计-${getTimestamp()}.xlsx`);
+    }
+    async function exportDiffImage() {
+        const wrapper = document.querySelector('#diffTableContainer .result-wrapper');
+        if(!wrapper){ alert('无可导出区域'); return; }
+        const origMaxH = wrapper.style.maxHeight, origOverflow = wrapper.style.overflowY;
+        wrapper.style.maxHeight = 'none'; wrapper.style.overflowY = 'visible';
+        try {
+            const canvas = await html2canvas(wrapper, {scale:2, backgroundColor:'#fff'});
+            canvas.toBlob(blob => saveAs(blob, `变化值统计-${getTimestamp()}.png`));
+        } catch(e){ alert('截图失败'); } finally {
+            wrapper.style.maxHeight = origMaxH; wrapper.style.overflowY = origOverflow;
+        }
+    }
+    function addDiffExportButtons() {
+        const container = document.getElementById('diffTableContainer');
+        if(!container || container.parentElement.querySelector('.export-bar')) return;
+        const bar = document.createElement('div'); bar.className='export-bar';
+        const btnExcel = document.createElement('button'); btnExcel.className='btn-outline'; btnExcel.innerHTML='📎 导出 Excel'; btnExcel.onclick=exportDiffExcel;
+        const btnImg = document.createElement('button'); btnImg.className='btn-outline'; btnImg.innerHTML='🖼️ 导出图片（长图）'; btnImg.onclick=exportDiffImage;
+        bar.appendChild(btnExcel); bar.appendChild(btnImg);
+        container.parentElement.appendChild(bar);
+    }
+
+    function exportMemberExcel() {
+        const tbl = document.querySelector('#memberListTable');
+        if(!tbl){ alert('无可导出表格'); return; }
+        const ws = XLSX.utils.table_to_sheet(tbl, {raw:true});
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '成员列表');
+        const suffix = currentView === 'exit' ? '退出同盟' : '加入同盟';
+        XLSX.writeFile(wb, `${suffix}-${getTimestamp()}.xlsx`);
+    }
+    async function exportMemberImage() {
+        const wrapper = document.querySelector('#memberListWrapper');
+        if(!wrapper){ alert('无可导出区域'); return; }
+        const origMaxH = wrapper.style.maxHeight, origOverflow = wrapper.style.overflowY;
+        wrapper.style.maxHeight = 'none'; wrapper.style.overflowY = 'visible';
+        try {
+            const canvas = await html2canvas(wrapper, {scale:2, backgroundColor:'#fff'});
+            const suffix = currentView === 'exit' ? '退出同盟' : '加入同盟';
+            canvas.toBlob(blob => saveAs(blob, `${suffix}-${getTimestamp()}.png`));
+        } catch(e){ alert('截图失败'); } finally {
+            wrapper.style.maxHeight = origMaxH; wrapper.style.overflowY = origOverflow;
+        }
+    }
+    function addMemberExportButtons() {
+        const container = document.getElementById('memberListContainer');
+        if(!container || container.parentElement.querySelector('.export-bar')) return;
+        const bar = document.createElement('div'); bar.className='export-bar';
+        const btnExcel = document.createElement('button'); btnExcel.className='btn-outline'; btnExcel.innerHTML='📎 导出 Excel'; btnExcel.onclick=exportMemberExcel;
+        const btnImg = document.createElement('button'); btnImg.className='btn-outline'; btnImg.innerHTML='🖼️ 导出图片（长图）'; btnImg.onclick=exportMemberImage;
+        bar.appendChild(btnExcel); bar.appendChild(btnImg);
+        container.parentElement.appendChild(bar);
+    }
+
+    function exportGroupExcel() {
+        const tbl = document.querySelector('#groupStatsTable');
+        if(!tbl){ alert('无可导出表格'); return; }
+        const ws = XLSX.utils.table_to_sheet(tbl, {raw:true});
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '分组战功统计');
+        XLSX.writeFile(wb, `分组战功统计-${getTimestamp()}.xlsx`);
+    }
+    async function exportGroupImage() {
+        let target = document.querySelector('#groupStatsWrapper');
+        if(!target) target = document.querySelector('#groupStatsContainer .result-wrapper');
+        if(!target){ alert('无可导出区域'); return; }
+        const origMaxH = target.style.maxHeight, origOverflow = target.style.overflowY;
+        target.style.maxHeight = 'none'; target.style.overflowY = 'visible';
+        try {
+            const canvas = await html2canvas(target, {scale:2, backgroundColor:'#fff'});
+            canvas.toBlob(blob => saveAs(blob, `分组战功统计-${getTimestamp()}.png`));
+        } catch(e){ alert('截图失败'); } finally {
+            target.style.maxHeight = origMaxH; target.style.overflowY = origOverflow;
+        }
+    }
+
+    function exportCitySkinExcel() {
+        const tbl = document.querySelector('#citySkinTable');
+        if(!tbl){ alert('无可导出表格'); return; }
+        const ws = XLSX.utils.table_to_sheet(tbl, {raw:true});
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '未参与城皮');
+        XLSX.writeFile(wb, `未参与城皮-阈值${citySkinThreshold}-${getTimestamp()}.xlsx`);
+    }
+    async function exportCitySkinImage() {
+        let target = document.querySelector('#citySkinWrapper');
+        if(!target) target = document.querySelector('#citySkinContainer .result-wrapper');
+        if(!target){ alert('无可导出区域'); return; }
+        const origMaxH = target.style.maxHeight, origOverflow = target.style.overflowY;
+        target.style.maxHeight = 'none'; target.style.overflowY = 'visible';
+        try {
+            const canvas = await html2canvas(target, {scale:2, backgroundColor:'#fff'});
+            canvas.toBlob(blob => saveAs(blob, `未参与城皮-阈值${citySkinThreshold}-${getTimestamp()}.png`));
+        } catch(e){ alert('截图失败'); } finally {
+            target.style.maxHeight = origMaxH; target.style.overflowY = origOverflow;
+        }
+    }
+    function addCitySkinExportButtons() {
+        const container = document.getElementById('citySkinContainer');
+        if(!container || container.parentElement.querySelector('.export-bar')) return;
+        const bar = document.createElement('div'); bar.className='export-bar';
+        const btnExcel = document.createElement('button'); btnExcel.className='btn-outline'; btnExcel.innerHTML='📎 导出 Excel'; btnExcel.onclick=exportCitySkinExcel;
+        const btnImg = document.createElement('button'); btnImg.className='btn-outline'; btnImg.innerHTML='🖼️ 导出图片（长图）'; btnImg.onclick=exportCitySkinImage;
+        bar.appendChild(btnExcel); bar.appendChild(btnImg);
+        container.parentElement.appendChild(bar);
+    }
+
+    // 渲染差值表格
+    function renderDiffTable() {
+        const container = document.getElementById('diffTableContainer');
+        if(!container) return;
+        if(!currentDiffList.length){ container.innerHTML='<div class="empty-message">需要两个有效CSV文件</div>'; return; }
+        let sorted = [...currentDiffList];
+        if(sortState.column && sortState.order){
+            sorted.sort((a,b)=>{
+                let va=a[sortState.column], vb=b[sortState.column];
+                if(typeof va==='string') return sortState.order==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+                else return sortState.order==='asc'?va-vb:vb-va;
+            });
+        }else sorted.sort((a,b)=>a.member.localeCompare(b.member));
+        const cols = ['排名','成员','所属州','分组','贡献总量','战功总量','助攻总量','捐献总量','势力值变化量'];
+        const wrapper = document.createElement('div'); wrapper.className='result-wrapper';
+        const table = document.createElement('table'); table.className='data-table';
+        const thead = document.createElement('thead'); const tr = document.createElement('tr');
+        cols.forEach(col=>{
+            const th = document.createElement('th'); th.textContent=col;
+            if(col!=='排名'){
+                th.classList.add('sortable');
+                th.addEventListener('click',()=>{
+                    if(sortState.column===col){
+                        if(sortState.order==='asc') sortState.order='desc';
+                        else if(sortState.order==='desc') sortState.order=null;
+                        else sortState.order='asc';
+                    }else{ sortState.column=col; sortState.order='asc'; }
+                    renderDiffTable();
+                });
+            }
+            tr.appendChild(th);
+        });
+        thead.appendChild(tr); table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        sorted.forEach((item,idx)=>{
+            const tr2 = document.createElement('tr');
+            tr2.appendChild(createTd((idx+1).toString()));
+            tr2.appendChild(createTd(item.member));
+            tr2.appendChild(createTd(item.所属州));
+            tr2.appendChild(createTd(item.分组));
+            tr2.appendChild(createTd(formatNum(item.贡献总量)));
+            tr2.appendChild(createTd(formatNum(item.战功总量)));
+            tr2.appendChild(createTd(formatNum(item.助攻总量)));
+            tr2.appendChild(createTd(formatNum(item.捐献总量)));
+            tr2.appendChild(createTd(formatNum(item.势力值变化量)));
+            tbody.appendChild(tr2);
+        });
+        table.appendChild(tbody); wrapper.appendChild(table);
+        container.innerHTML=''; container.appendChild(wrapper);
+        const newThead = container.querySelector('thead');
+        if(newThead){
+            const headers = newThead.querySelectorAll('th');
+            headers.forEach(th=>{
+                th.classList.remove('sort-asc','sort-desc');
+                if(th.textContent===sortState.column){
+                    if(sortState.order==='asc') th.classList.add('sort-asc');
+                    else if(sortState.order==='desc') th.classList.add('sort-desc');
+                }
+            });
+        }
+        addDiffExportButtons();
+    }
+
+    function renderMemberList(type) {
+        const {prev,next}=getOrderedSets();
+        if(!prev||!next){ dynamicDiv.innerHTML='<div class="empty-message">需要两个文件且识别日期顺序</div>'; return; }
+        let members = type==='exit' ? [...prev].filter(m=>!next.has(m)) : [...next].filter(m=>!prev.has(m));
+        members.sort();
+        const title = type==='exit'?'🚪 期间退出同盟':'🤝 期间加入同盟';
+        const hint = type==='exit'?'前期存在但后期不存在':'后期新增且前期不存在';
+        const wrapper = document.createElement('div'); wrapper.className='result-wrapper'; wrapper.id='memberListWrapper';
+        if(!members.length) wrapper.innerHTML=`<div class="empty-message">✅ 无成员变动</div>`;
+        else{
+            const table = document.createElement('table'); table.className='data-table'; table.id='memberListTable';
+            const thead = document.createElement('thead'); const tr = document.createElement('tr');
+            tr.appendChild(createTd('序号')); tr.appendChild(createTd('成员名称'));
+            thead.appendChild(tr); table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            members.forEach((name,idx)=>{
+                const r = document.createElement('tr');
+                r.appendChild(createTd((idx+1).toString())); r.appendChild(createTd(name));
+                tbody.appendChild(r);
+            });
+            table.appendChild(tbody); wrapper.appendChild(table);
+        }
+        const headerDiv = document.createElement('div'); headerDiv.className='result-header';
+        headerDiv.innerHTML = `<h3>${title}</h3><div class="diff-hint">${hint}</div>`;
+        const containerDiv = document.createElement('div'); containerDiv.id='memberListContainer';
+        containerDiv.appendChild(headerDiv); containerDiv.appendChild(wrapper);
+        dynamicDiv.innerHTML=''; dynamicDiv.appendChild(containerDiv);
+        addMemberExportButtons();
+    }
+
+    function renderGroupStatsTable() {
+        computeGroupStats();
+        const container = document.getElementById('groupStatsContainer');
+        if(!container) return;
+        if(!currentGroupStats.length){ container.innerHTML='<div class="empty-message">需要上传文件并识别后期文件</div>'; return; }
+        let sorted = [...currentGroupStats];
+        if(groupSortState.column && groupSortState.order){
+            sorted.sort((a,b)=>{
+                let va=a[groupSortState.column], vb=b[groupSortState.column];
+                if(typeof va==='string') return groupSortState.order==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+                else return groupSortState.order==='asc'?va-vb:vb-va;
+            });
+        }else sorted.sort((a,b)=>a.组名.localeCompare(b.组名));
+        const cols = ['排名','组名','组成员人数','组总战功','组平均战功'];
+        const wrapper = document.createElement('div'); wrapper.className='result-wrapper'; wrapper.id='groupStatsWrapper';
+        const table = document.createElement('table'); table.className='data-table'; table.id='groupStatsTable';
+        const thead = document.createElement('thead'); const tr = document.createElement('tr');
+        cols.forEach(col=>{
+            const th = document.createElement('th'); th.textContent=col;
+            if(col!=='排名' && col!=='组名'){
+                th.classList.add('sortable');
+                th.addEventListener('click',()=>{
+                    if(groupSortState.column===col){
+                        if(groupSortState.order==='asc') groupSortState.order='desc';
+                        else if(groupSortState.order==='desc') groupSortState.order=null;
+                        else groupSortState.order='asc';
+                    }else{ groupSortState.column=col; groupSortState.order='asc'; }
+                    renderGroupStatsTable();
+                });
+            }
+            tr.appendChild(th);
+        });
+        thead.appendChild(tr); table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        sorted.forEach((item,idx)=>{
+            const tr2 = document.createElement('tr');
+            tr2.appendChild(createTd((idx+1).toString()));
+            tr2.appendChild(createTd(item.组名));
+            tr2.appendChild(createTd(item.人数));
+            tr2.appendChild(createTd(formatNum(item.总战功)));
+            tr2.appendChild(createTd(Math.round(item.平均战功)));
+            tbody.appendChild(tr2);
+        });
+        table.appendChild(tbody); wrapper.appendChild(table);
+        container.innerHTML=''; container.appendChild(wrapper);
+        const newThead = container.querySelector('thead');
+        if(newThead){
+            const heads = newThead.querySelectorAll('th');
+            heads.forEach(th=>{
+                th.classList.remove('sort-asc','sort-desc');
+                if(th.textContent===groupSortState.column){
+                    if(groupSortState.order==='asc') th.classList.add('sort-asc');
+                    else if(groupSortState.order==='desc') th.classList.add('sort-desc');
+                }
+            });
+        }
+        if(!container.parentElement.querySelector('.export-bar')) {
+            const bar = document.createElement('div'); bar.className='export-bar';
+            const btnExcel = document.createElement('button'); btnExcel.className='btn-outline'; btnExcel.innerHTML='📎 导出 Excel'; btnExcel.onclick=exportGroupExcel;
+            const btnImg = document.createElement('button'); btnImg.className='btn-outline'; btnImg.innerHTML='🖼️ 导出图片（长图）'; btnImg.onclick=exportGroupImage;
+            bar.appendChild(btnExcel); bar.appendChild(btnImg);
+            container.parentElement.appendChild(bar);
+        }
+    }
+
+    function toggleGroupView() {
+        showGroupPie = !showGroupPie;
+        if(showGroupPie) {
+            renderGroupPieChart();
+        } else {
+            renderGroupStatsTable();
+        }
+        const toggleBtn = document.getElementById('toggleGroupViewBtn');
+        if(toggleBtn) toggleBtn.innerHTML = showGroupPie ? '📋 表格视图' : '📊 饼状图视图';
+    }
+    function renderGroupPieChart() {
+        const container = document.getElementById('groupStatsContainer');
+        if(!container) return;
+        if(!currentGroupStats.length){ container.innerHTML='<div class="empty-message">无数据，无法生成饼图</div>'; return; }
+        const labels = currentGroupStats.map(g => g.组名);
+        const dataValues = currentGroupStats.map(g => g.总战功);
+        container.innerHTML = `<canvas id="groupPieChart" style="max-width:600px; margin:0 auto; display:block;"></canvas>`;
+        const ctx = document.getElementById('groupPieChart').getContext('2d');
+        if(groupChartInstance) groupChartInstance.destroy();
+        groupChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#1f6e8c','#2c5f8a','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec489a','#14b8a6','#f97316'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw.toLocaleString()}` } } } }
+        });
+        const existingBar = container.parentElement.querySelector('.export-bar');
+        if(existingBar) existingBar.remove();
+    }
+
+    // 未参与城皮独立视图（一体式阈值 + 按钮切换饼图/表格）
+    function renderCitySkinView() {
+        if(!currentDiffList.length){
+            dynamicDiv.innerHTML = '<div class="empty-message">请先上传两个CSV文件并确保有差值数据</div>';
+            return;
+        }
+        const filtered = currentDiffList.filter(d => d.助攻总量 < citySkinThreshold);
+        filtered.sort((a,b)=>a.助攻总量 - b.助攻总量);
+        
+        const thresholdHtml = `
+            <div class="threshold-group">
+                <input type="number" id="citySkinThresholdInput" value="${citySkinThreshold}" step="1" style="width:70px;">
+                <button id="applyCitySkinThreshold">查询</button>
+            </div>
+        `;
+        const titleHtml = `
+            <div class="result-header">
+                <h3>📉 未参与城皮成员（助攻变化量 &lt; ${citySkinThreshold}）</h3>
+                <div class="float-control">
+                    ${thresholdHtml}
+                    <button id="toggleCitySkinViewBtn" class="btn-outline">${isCitySkinPie ? '📋 表格视图' : '📊 饼状图视图'}</button>
+                </div>
+            </div>
+        `;
+        const containerDiv = document.createElement('div'); containerDiv.id='citySkinContainer';
+        containerDiv.innerHTML = titleHtml;
+        
+        // 显示内容区域
+        const contentDiv = document.createElement('div');
+        contentDiv.id = 'citySkinContent';
+        containerDiv.appendChild(contentDiv);
+        
+        dynamicDiv.innerHTML = '';
+        dynamicDiv.appendChild(containerDiv);
+        
+        // 渲染表格或饼图
+        function renderTable() {
+            contentDiv.innerHTML = '';
+            const wrapper = document.createElement('div'); wrapper.className='result-wrapper'; wrapper.id='citySkinWrapper';
+            const table = document.createElement('table'); table.className='data-table'; table.id='citySkinTable';
+            const thead = document.createElement('thead'); const tr = document.createElement('tr');
+            ['排名','成员','所属州','分组','助攻变化量'].forEach(col=>{ const th=document.createElement('th'); th.textContent=col; tr.appendChild(th); });
+            thead.appendChild(tr); table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            filtered.forEach((item,idx)=>{
+                const r=document.createElement('tr');
+                r.appendChild(createTd((idx+1).toString()));
+                r.appendChild(createTd(item.member));
+                r.appendChild(createTd(item.所属州));
+                r.appendChild(createTd(item.分组));
+                r.appendChild(createTd(formatNum(item.助攻总量)));
+                tbody.appendChild(r);
+            });
+            table.appendChild(tbody); wrapper.appendChild(table);
+            contentDiv.appendChild(wrapper);
+            addCitySkinExportButtons();
+        }
+        function renderPie() {
+            if(citySkinChartInstance) citySkinChartInstance.destroy();
+            // 饼图数据按分组人数统计
+            const groupCount = new Map();
+            filtered.forEach(item => {
+                let g = item.分组 === '-' ? '未分组' : item.分组;
+                groupCount.set(g, (groupCount.get(g) || 0) + 1);
+            });
+            const labels = Array.from(groupCount.keys()).sort();
+            const counts = labels.map(l => groupCount.get(l));
+            contentDiv.innerHTML = `<canvas id="citySkinPieChart" style="max-width:600px; margin:0 auto; display:block;"></canvas>`;
+            const ctx = document.getElementById('citySkinPieChart').getContext('2d');
+            citySkinChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: { labels: labels, datasets: [{ data: counts, backgroundColor: ['#1f6e8c','#2c5f8a','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec489a','#14b8a6','#f97316'] }] },
+                options: { responsive: true, plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} 人` } } } }
+            });
+            // 饼图模式下移除导出栏（或者保留导出图片? 用户需要导出时可截图，保留会混乱；但需求要求右下角有导出按钮？需求是“依旧右下角有导出excel和导出图片按钮”，在表格模式下已有，饼图模式下通常不需要，但为统一，我们不加。用户可返回表格导出）
+            const existingBar = containerDiv.parentElement.querySelector('.export-bar');
+            if(existingBar) existingBar.remove();
+        }
+        
+        if(isCitySkinPie) {
+            renderPie();
+        } else {
+            renderTable();
+        }
+        
+        // 绑定事件：阈值查询
+        document.getElementById('applyCitySkinThreshold')?.addEventListener('click', () => {
+            const newVal = parseInt(document.getElementById('citySkinThresholdInput').value,10);
+            if(!isNaN(newVal)) citySkinThreshold = newVal;
+            renderCitySkinView();
+        });
+        // 表格/饼图切换按钮
+        const toggleBtn = document.getElementById('toggleCitySkinViewBtn');
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                isCitySkinPie = !isCitySkinPie;
+                renderCitySkinView();
+            });
+        }
+    }
+
+    function createTd(v){ let td=document.createElement('td'); td.textContent=v; return td; }
+    function formatNum(n){ return typeof n==='number'?n.toLocaleString(undefined,{maximumFractionDigits:2}):String(n); }
+
+    async function refreshAll() {
+        updateInterval(); computeDiff();
+        if(currentView==='diff'){
+            dynamicDiv.innerHTML=`<div class="result-header"><h3>相同成员数据对比（差值）</h3><div class="diff-hint">所属州/分组前后一致才显示，不一致为“-”</div></div><div id="diffTableContainer" class="result-wrapper"></div>`;
+            renderDiffTable();
+        }else if(currentView==='exit') renderMemberList('exit');
+        else if(currentView==='join') renderMemberList('join');
+        else if(currentView==='groupStats'){
+            showGroupPie = false;
+            dynamicDiv.innerHTML = `
+                <div class="result-header">
+                    <h3>分组战功统计（基于后期文件）</h3>
+                    <div>
+                        <button id="toggleGroupViewBtn" class="btn-outline" style="margin-right:10px;">📊 饼状图视图</button>
+                        <span class="diff-hint">平均战功四舍五入取整</span>
+                    </div>
+                </div>
+                <div id="groupStatsContainer" class="result-wrapper"></div>
+            `;
+            renderGroupStatsTable();
+            document.getElementById('toggleGroupViewBtn')?.addEventListener('click', toggleGroupView);
+        }else if(currentView==='citySkin'){
+            renderCitySkinView();
+        }
+    }
+
+    function setView(v){
+        currentView=v;
+        [viewDiff,viewExit,viewJoin,viewGroupStats,viewCitySkin].forEach(btn=>btn.classList.remove('active'));
+        if(v==='diff') viewDiff.classList.add('active');
+        if(v==='exit') viewExit.classList.add('active');
+        if(v==='join') viewJoin.classList.add('active');
+        if(v==='groupStats') viewGroupStats.classList.add('active');
+        if(v==='citySkin') viewCitySkin.classList.add('active');
+        refreshAll();
+    }
+
+    function clearFileA(){ fileAInput.value=''; loadFileA(null); }
+    function clearFileB(){ fileBInput.value=''; loadFileB(null); }
+    function clearAll(){ clearFileA(); clearFileB(); }
+    async function swapFiles(){
+        if(!fileARaw && !fileBRaw) return;
+        let tmpRaw=fileARaw, tmpMap=fileAMap, tmpSet=fileAMembers, tmpDate=fileADate;
+        let tmpStatus=fileAStatus.innerHTML, tmpDateBadge=dateABadge.innerText;
+        if(fileBRaw){
+            fileARaw=fileBRaw; fileAMap=fileBMap; fileAMembers=fileBMembers; fileADate=fileBDate;
+            fileAStatus.innerHTML=fileBStatus.innerHTML; dateABadge.innerText=dateBBadge.innerText;
+            let dt=new DataTransfer(); dt.items.add(fileBRaw); fileAInput.files=dt.files;
+        }else{
+            fileARaw=null; fileAMap.clear(); fileAMembers.clear(); fileADate=null;
+            fileAStatus.innerHTML='<span>未选择</span><span class="date-info">—</span>'; dateABadge.innerText='—'; fileAInput.value='';
+        }
+        if(tmpRaw){
+            fileBRaw=tmpRaw; fileBMap=tmpMap; fileBMembers=tmpSet; fileBDate=tmpDate;
+            fileBStatus.innerHTML=tmpStatus; dateBBadge.innerText=tmpDateBadge;
+            let dt=new DataTransfer(); dt.items.add(tmpRaw); fileBInput.files=dt.files;
+        }else{
+            fileBRaw=null; fileBMap.clear(); fileBMembers.clear(); fileBDate=null;
+            fileBStatus.innerHTML='<span>未选择</span><span class="date-info">—</span>'; dateBBadge.innerText='—'; fileBInput.value='';
+        }
+        await refreshAll();
+    }
+
+    // 事件绑定
+    fileAInput.addEventListener('change', e=>loadFileA(e.target.files[0]));
+    fileBInput.addEventListener('change', e=>loadFileB(e.target.files[0]));
+    clearABtn.addEventListener('click', clearFileA);
+    clearBBtn.addEventListener('click', clearFileB);
+    clearAllBtn.addEventListener('click', clearAll);
+    swapBtn.addEventListener('click', swapFiles);
+    viewDiff.addEventListener('click', ()=>setView('diff'));
+    viewExit.addEventListener('click', ()=>setView('exit'));
+    viewJoin.addEventListener('click', ()=>setView('join'));
+    viewGroupStats.addEventListener('click', ()=>setView('groupStats'));
+    viewCitySkin.addEventListener('click', ()=>setView('citySkin'));
+
+    function addDragDrop(card, input, handler){
+        if(!card) return;
+        const pre=e=>{e.preventDefault();e.stopPropagation();};
+        ['dragenter','dragover','dragleave','drop'].forEach(ev=>card.addEventListener(ev,pre));
+        card.addEventListener('dragover',()=>card.style.borderColor='#9bb8da');
+        card.addEventListener('dragleave',()=>card.style.borderColor='#e9edf2');
+        card.addEventListener('drop',e=>{
+            card.style.borderColor='#e9edf2';
+            let f=e.dataTransfer.files[0];
+            if(f && (f.name.endsWith('.csv')||f.type==='text/csv')){ handler(f); let dt=new DataTransfer(); dt.items.add(f); input.files=dt.files; }
+            else alert('请拖放CSV文件');
+        });
+    }
+    addDragDrop(document.querySelector('.file-card:first-child'), fileAInput, f=>loadFileA(f));
+    addDragDrop(document.querySelector('.file-card:last-child'), fileBInput, f=>loadFileB(f));
+
+    clearAll();
+    setView('diff');
+</script>
+</body>
+</html>
